@@ -12,10 +12,10 @@ fn main() {
     println!("Hello, world!");
 
     println!("Temperature = ");
-    let temperature = get_float_input();
+    let mut temperature = get_float_input();
 
-    println!("Iteration = ");
-    let iteration: u64 = get_float_input() as u64;
+    println!("Max Iteration = ");
+    let max_iteration: u64 = get_float_input() as u64;
 
     println!("Upper Bound = ");
     let upper_bound = get_float_input();
@@ -27,7 +27,7 @@ fn main() {
     let mut x2: f64 = rand::thread_rng().gen_range(lower_bound..=upper_bound);
 
     let mut give_up_counter: u8 = 0;
-    for i in 0..iteration {
+    for i in 0..max_iteration {
         x1 = bound_detective(x1, upper_bound, lower_bound);
         x2 = bound_detective(x2, upper_bound, lower_bound);
 
@@ -55,6 +55,8 @@ fn main() {
             break;
         }
         give_up_counter = give_up_return.1;
+
+        temperature = turbofan_oven(temperature, i, max_iteration);
 
         let original_result = calculate(x1, x2);
         let new_result = calculate(new_x1, new_x2);
@@ -97,6 +99,32 @@ fn magic_trick(x: f64, what_happened: Bound) -> f64 {
         Bound::Lower => x + (0.000000001 * x / 100.0),
         Bound::Nothing => x,
     }
+}
+
+fn turbofan_oven(mut temperature: f64, i: u64, max_iteration: u64) -> f64 {
+    let where_we_are = (i as f64 / max_iteration as f64) * 100.0;
+    if where_we_are < 5.0 {
+    } else if where_we_are < 10.0 {
+        temperature -= (1.0 / 100.0) * temperature;
+    } else if where_we_are < 15.0 {
+        temperature += (1.0 / 100.0) * temperature;
+    } else if where_we_are < 20.0 {
+        temperature -= (1.0 / 100.0) * temperature;
+    } else if where_we_are < 25.0 {
+        temperature += (1.0 / 100.0) * temperature;
+    } else if where_we_are < 30.0 {
+        temperature -= (1.0 / 100.0) * temperature;
+    } else if where_we_are < 35.0 {
+        temperature += (1.0 / 100.0) * temperature;
+    } else if where_we_are < 40.0 {
+        temperature -= (1.0 / 100.0) * temperature;
+    } else if where_we_are < 50.0 {
+        temperature += (2.0 / 100.0) * temperature;
+    } else if where_we_are < 60.0 {
+    } else if where_we_are < 70.0 {
+        temperature -= (5.0 / 100.0) * temperature;
+    }
+    temperature
 }
 
 fn give_up(x1: f64, x2: f64, new_x1: f64, new_x2: f64, mut give_up_counter: u8) -> (bool, u8) {
