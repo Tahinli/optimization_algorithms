@@ -30,23 +30,54 @@ fn main() {
     for i in 0..max_iteration {
         x1 = bound_detective(x1, upper_bound, lower_bound);
         x2 = bound_detective(x2, upper_bound, lower_bound);
-
         let new_x1: f64;
         let new_x2: f64;
 
         let where_to_go = rand::thread_rng().gen_range(0.0..=1.0);
         if where_to_go > 0.7 {
-            new_x1 = rand::thread_rng().gen_range(x1..=(x1 + ((5.0 * x1) / 100.0)));
-            new_x2 = rand::thread_rng().gen_range(x2..=(x2 + ((5.0 * x2) / 100.0)));
+            if x1 >= 0.0 {
+                new_x1 = rand::thread_rng().gen_range(x1..=(x1 + ((5.0 * x1) / 100.0)));
+            } else {
+                new_x1 = rand::thread_rng().gen_range(x1..=(x1 - ((5.0 * x1) / 100.0)));
+            }
+            if x2 >= 0.0 {
+                new_x2 = rand::thread_rng().gen_range(x2..=(x2 + ((5.0 * x2) / 100.0)));
+            } else {
+                new_x2 = rand::thread_rng().gen_range(x2..=(x2 - ((5.0 * x2) / 100.0)));
+            }
         } else if where_to_go > 0.5 {
-            new_x1 = rand::thread_rng().gen_range(x1..=(x1 + ((5.0 * x1) / 100.0)));
-            new_x2 = rand::thread_rng().gen_range((x2 - ((5.0 * x2) / 100.0))..=x2);
+            if x1 >= 0.0 {
+                new_x1 = rand::thread_rng().gen_range(x1..=(x1 + ((5.0 * x1) / 100.0)));
+            } else {
+                new_x1 = rand::thread_rng().gen_range(x1..=(x1 - ((5.0 * x1) / 100.0)));
+            }
+            if x2 >= 0.0 {
+                new_x2 = rand::thread_rng().gen_range((x2 - ((5.0 * x2) / 100.0))..=x2);
+            } else {
+                new_x2 = rand::thread_rng().gen_range((x2 + ((5.0 * x2) / 100.0))..=x2);
+            }
         } else if where_to_go > 0.3 {
-            new_x1 = rand::thread_rng().gen_range((x1 - ((5.0 * x1) / 100.0))..=x1);
-            new_x2 = rand::thread_rng().gen_range(x2..=(x2 + ((5.0 * x2) / 100.0)));
+            if x1 >= 0.0 {
+                new_x1 = rand::thread_rng().gen_range((x1 - ((5.0 * x1) / 100.0))..=x1);
+            } else {
+                new_x1 = rand::thread_rng().gen_range((x1 + ((5.0 * x1) / 100.0))..=x1);
+            }
+            if x2 >= 0.0 {
+                new_x2 = rand::thread_rng().gen_range(x2..=(x2 + ((5.0 * x2) / 100.0)));
+            } else {
+                new_x2 = rand::thread_rng().gen_range(x2..=(x2 - ((5.0 * x2) / 100.0)));
+            }
         } else {
-            new_x1 = rand::thread_rng().gen_range((x1 - ((5.0 * x1) / 100.0))..=x1);
-            new_x2 = rand::thread_rng().gen_range((x2 - ((5.0 * x2) / 100.0))..=x2);
+            if x1 >= 0.0 {
+                new_x1 = rand::thread_rng().gen_range((x1 - ((5.0 * x1) / 100.0))..=x1);
+            } else {
+                new_x1 = rand::thread_rng().gen_range((x1 + ((5.0 * x1) / 100.0))..=x1);
+            }
+            if x2 >= 0.0 {
+                new_x2 = rand::thread_rng().gen_range((x2 - ((5.0 * x2) / 100.0))..=x2);
+            } else {
+                new_x2 = rand::thread_rng().gen_range((x2 + ((5.0 * x2) / 100.0))..=x2);
+            }
         }
 
         let give_up_return = give_up(x1, x2, new_x1, new_x2, give_up_counter);
@@ -84,9 +115,9 @@ fn calculate(x1: f64, x2: f64) -> f64 {
 }
 
 fn bound_detective(x: f64, upper_bound: f64, lower_bound: f64) -> f64 {
-    if x > upper_bound {
+    if x >= upper_bound {
         magic_trick(upper_bound, Bound::Upper)
-    } else if x < lower_bound {
+    } else if x <= lower_bound {
         magic_trick(lower_bound, Bound::Lower)
     } else {
         magic_trick(x, Bound::Nothing)
@@ -94,10 +125,18 @@ fn bound_detective(x: f64, upper_bound: f64, lower_bound: f64) -> f64 {
 }
 
 fn magic_trick(x: f64, what_happened: Bound) -> f64 {
-    match what_happened {
-        Bound::Upper => x + (-0.000000001 * x / 100.0),
-        Bound::Lower => x + (0.000000001 * x / 100.0),
-        Bound::Nothing => x,
+    if x >= 0.0 {
+        match what_happened {
+            Bound::Upper => return x - (0.000000001 * x / 100.0),
+            Bound::Lower => return x + (0.000000001 * x / 100.0),
+            Bound::Nothing => return x,
+        }
+    } else {
+        match what_happened {
+            Bound::Upper => return x + (0.000000001 * x / 100.0),
+            Bound::Lower => return x - (0.000000001 * x / 100.0),
+            Bound::Nothing => return x,
+        }
     }
 }
 
