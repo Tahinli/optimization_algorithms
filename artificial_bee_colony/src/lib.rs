@@ -10,6 +10,7 @@ pub struct Input {
     pub upper_bound: f64,
     pub lower_bound: f64,
     pub iteration: usize,
+    pub run: usize,
 }
 impl Input {
     pub fn get() -> Self {
@@ -31,6 +32,8 @@ impl Input {
         println!("Iteration");
         let iteration = Self::get_input().parse().unwrap();
 
+        println!("Run");
+        let run = Self::get_input().parse().unwrap();
         Input {
             decision_variable_count,
             food_source_number,
@@ -38,6 +41,7 @@ impl Input {
             upper_bound,
             lower_bound,
             iteration,
+            run,
         }
     }
     fn get_input() -> String {
