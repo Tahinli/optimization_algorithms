@@ -1,4 +1,4 @@
-use artificial_bee_colony::{bee::Bee, food::FoodSource, Input};
+use artificial_bee_colony::{bee::Bee, food::FoodSource, give_output, Input};
 fn main() {
     println!("Hello, world!");
 
@@ -12,11 +12,13 @@ fn main() {
     );
 
     for run_counter in 0..input.run {
-        let mut best = FoodSource::get(vec![]);
+        let mut best_food_source = FoodSource::get(vec![]);
         for food_source in &food_sources {
-            if best.fitness < food_source.fitness {
-                best.coordinates.clone_from(&food_source.coordinates);
-                best.fitness = food_source.fitness;
+            if best_food_source.fitness < food_source.fitness {
+                best_food_source
+                    .coordinates
+                    .clone_from(&food_source.coordinates);
+                best_food_source.fitness = food_source.fitness;
             }
         }
         for _ in 0..input.iteration {
@@ -46,7 +48,7 @@ fn main() {
                         most_tried_index = i;
                     }
                 }
-                best = food_sources[most_tried_index].clone();
+                best_food_source = food_sources[most_tried_index].clone();
                 Bee::scout_bee(
                     &mut food_sources,
                     most_tried_index,
@@ -57,8 +59,6 @@ fn main() {
                 );
             }
         }
-        println!("-------------------------------");
-        println!("\n\t|Run {}|\n", run_counter);
-        println!("{:#?}", best);
+        give_output(best_food_source, run_counter)
     }
 }
