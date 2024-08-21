@@ -1,3 +1,4 @@
+use core::str;
 use std::{
     env::args,
     fs::{File, OpenOptions},
@@ -117,7 +118,12 @@ impl Input {
     }
 }
 
-pub fn give_output(best_food_source: FoodSource, run_counter: usize) {
+pub fn give_output(
+    best_food_source: FoodSource,
+    fitness_results: &[f64],
+    input_run: usize,
+    run_counter: usize,
+) {
     let mut write_file = false;
     for arg in args().collect::<Vec<String>>() {
         match arg.as_str() {
@@ -125,21 +131,31 @@ pub fn give_output(best_food_source: FoodSource, run_counter: usize) {
             _ => {}
         }
     }
+
+    let mut print_buffer = vec![];
+    write!(print_buffer, "[{}]\n{}\n", run_counter, best_food_source).unwrap();
+    if run_counter == input_run - 1 {
+        let arithmetic_mean = arithmetic_mean(fitness_results);
+        let standard_deviation = standard_deviation(fitness_results, arithmetic_mean);
+        write!(
+            print_buffer,
+            "[evaluation]\narithmetic_mean = {}\nstandard_deviation = {}",
+            arithmetic_mean, standard_deviation
+        )
+        .unwrap();
+    }
     if write_file {
-        write_output_file(best_food_source, run_counter)
+        write_output_file(&print_buffer[..], run_counter)
     } else {
-        give_terminal_output(best_food_source, run_counter)
+        give_terminal_output(&print_buffer[..])
     }
 }
 
-fn give_terminal_output(best_food_source: FoodSource, run_counter: usize) {
-    println!("[{}]\n{}\n", run_counter, best_food_source)
+fn give_terminal_output(print_buffer: &[u8]) {
+    println!("{}", str::from_utf8(print_buffer).unwrap());
 }
 
-fn write_output_file(best_food_source: FoodSource, run_counter: usize) {
-    let mut print_buffer = vec![];
-    write!(print_buffer, "[{}]\n{}\n", run_counter, best_food_source).unwrap();
-
+fn write_output_file(print_buffer: &[u8], run_counter: usize) {
     let mut file_try_counter = 0;
     let file_name = "abc_result";
     let file_extension = "toml";
@@ -165,6 +181,22 @@ fn write_output_file(best_food_source: FoodSource, run_counter: usize) {
         file = OpenOptions::new().append(true).open(file_path).unwrap();
     }
 
-    file.write_all(&print_buffer).unwrap();
+    file.write_all(print_buffer).unwrap();
     file.flush().unwrap();
+}
+
+fn arithmetic_mean(fitness_results: &[f64]) -> f64 {
+    let mut total_fitness_results = 0.0;
+    for fitness_result in fitness_results {
+        total_fitness_results += fitness_result
+    }
+    total_fitness_results / fitness_results.len() as f64
+}
+
+fn standard_deviation(fitness_results: &[f64], arithmetic_mean: f64) -> f64 {
+    let mut total_difference_square = 0.0;
+    for fitness_result in fitness_results {
+        total_difference_square += (fitness_result - arithmetic_mean).powi(2)
+    }
+    total_difference_square / (fitness_results.len() - 1) as f64
 }
