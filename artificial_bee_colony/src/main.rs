@@ -3,7 +3,7 @@ fn main() {
     println!("Hello, world!");
 
     let input = Input::get();
-    let mut fitness_results = vec![];
+    let mut function_results = vec![];
 
     let mut food_sources = FoodSource::create_food_sources(
         input.food_source_number,
@@ -60,10 +60,10 @@ fn main() {
                 );
             }
         }
-        fitness_results.push(best_food_source.fitness);
+        function_results.push(best_food_source.function_calculation);
         give_output(
             best_food_source,
-            &fitness_results[..],
+            &function_results[..],
             input.run,
             run_counter,
         )
