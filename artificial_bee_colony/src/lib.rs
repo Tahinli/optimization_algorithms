@@ -121,6 +121,7 @@ impl Input {
 pub fn give_output(
     best_food_source: FoodSource,
     function_results: &[f64],
+    fitness_results: &[f64],
     input_run: usize,
     run_counter: usize,
 ) {
@@ -135,12 +136,16 @@ pub fn give_output(
     let mut print_buffer = vec![];
     write!(print_buffer, "[{}]\n{}\n", run_counter, best_food_source).unwrap();
     if run_counter == input_run - 1 {
-        let arithmetic_mean = arithmetic_mean(function_results);
-        let standard_deviation = standard_deviation(function_results, arithmetic_mean);
+        let function_results_arithmetic_mean = arithmetic_mean(function_results);
+        let function_results_standard_deviation =
+            standard_deviation(function_results, function_results_arithmetic_mean);
+        let fitness_results_arithmetic_mean = arithmetic_mean(fitness_results);
+        let fitness_results_standard_deviation =
+            standard_deviation(fitness_results, fitness_results_arithmetic_mean);
         write!(
             print_buffer,
-            "[evaluation]\narithmetic_mean = {}\nstandard_deviation = {}",
-            arithmetic_mean, standard_deviation
+            "[evaluation_function_results]\nfunction_results_arithmetic_mean = {}\nfunction_results_standard_deviation = {}\n\n[evaluation_fitness_results]\nfitness_results_arithmetic_mean = {}\nfitness_results_standard_deviation = {}",
+            function_results_arithmetic_mean, function_results_standard_deviation, fitness_results_arithmetic_mean, fitness_results_standard_deviation
         )
         .unwrap();
     }
@@ -185,18 +190,18 @@ fn write_output_file(print_buffer: &[u8], run_counter: usize) {
     file.flush().unwrap();
 }
 
-fn arithmetic_mean(function_results: &[f64]) -> f64 {
-    let mut total_function_results = 0.0;
-    for function_result in function_results {
-        total_function_results += function_result
+fn arithmetic_mean(results: &[f64]) -> f64 {
+    let mut total_results = 0.0;
+    for function_result in results {
+        total_results += function_result
     }
-    total_function_results / function_results.len() as f64
+    total_results / results.len() as f64
 }
 
-fn standard_deviation(function_results: &[f64], arithmetic_mean: f64) -> f64 {
+fn standard_deviation(results: &[f64], arithmetic_mean: f64) -> f64 {
     let mut total_difference_square = 0.0;
-    for function_result in function_results {
+    for function_result in results {
         total_difference_square += (function_result - arithmetic_mean).powi(2)
     }
-    f64::sqrt(total_difference_square / (function_results.len() - 1) as f64)
+    f64::sqrt(total_difference_square / (results.len() - 1) as f64)
 }

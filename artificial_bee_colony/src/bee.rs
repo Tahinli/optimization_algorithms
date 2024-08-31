@@ -33,7 +33,7 @@ impl Bee {
         candidate_coordinates[selected_coordinate_index] = candidate_one_index;
         let candidate = FoodSource::new(candidate_coordinates);
         food_sources[index].try_counter += 1;
-        if candidate.fitness > food_sources[index].fitness {
+        if candidate.fitness_calculation > food_sources[index].fitness_calculation {
             food_sources[index] = candidate;
             food_sources[index].try_counter = 0;
         }
@@ -47,7 +47,7 @@ impl Bee {
         upper_bound: f64,
         lower_bound: f64,
     ) {
-        let fitness_for_index = food_sources[index].fitness;
+        let fitness_for_index = food_sources[index].fitness_calculation;
         if fitness_for_index / total_fitness <= rand::thread_rng().gen_range(0.0..=1.0) {
             Self::employed_bee(
                 food_sources,

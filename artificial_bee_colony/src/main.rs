@@ -4,6 +4,7 @@ fn main() {
 
     let input = Input::get();
     let mut function_results = vec![];
+    let mut fitness_results = vec![];
 
     let mut food_sources = FoodSource::create_food_sources(
         input.food_source_number,
@@ -15,11 +16,11 @@ fn main() {
     for run_counter in 0..input.run {
         let mut best_food_source = FoodSource::new(vec![]);
         for food_source in &food_sources {
-            if best_food_source.fitness < food_source.fitness {
+            if best_food_source.fitness_calculation < food_source.fitness_calculation {
                 best_food_source
                     .coordinates
                     .clone_from(&food_source.coordinates);
-                best_food_source.fitness = food_source.fitness;
+                best_food_source.fitness_calculation = food_source.fitness_calculation;
             }
         }
         for _ in 0..input.iteration {
@@ -33,7 +34,7 @@ fn main() {
                 );
                 let mut total_fitness = 0.0;
                 for food_source in &food_sources {
-                    total_fitness += food_source.fitness;
+                    total_fitness += food_source.fitness_calculation;
                 }
                 Bee::onlooker_bee(
                     &mut food_sources,
@@ -61,9 +62,11 @@ fn main() {
             }
         }
         function_results.push(best_food_source.function_calculation);
+        fitness_results.push(best_food_source.fitness_calculation);
         give_output(
             best_food_source,
             &function_results[..],
+            &fitness_results[..],
             input.run,
             run_counter,
         )
