@@ -17,10 +17,7 @@ fn main() {
         let mut best_food_source = FoodSource::new(vec![]);
         for food_source in &food_sources {
             if best_food_source.fitness_calculation < food_source.fitness_calculation {
-                best_food_source
-                    .coordinates
-                    .clone_from(&food_source.coordinates);
-                best_food_source.fitness_calculation = food_source.fitness_calculation;
+                best_food_source = food_source.clone();
             }
         }
         for _ in 0..input.iteration {
@@ -50,15 +47,23 @@ fn main() {
                         most_tried_index = i;
                     }
                 }
-                best_food_source = food_sources[most_tried_index].clone();
-                Bee::scout_bee(
-                    &mut food_sources,
-                    most_tried_index,
-                    input.food_source_try_limit,
-                    input.lower_bound,
-                    input.upper_bound,
-                    input.decision_variable_count,
-                );
+                
+                for food_source in &food_sources {
+                    if best_food_source.fitness_calculation < food_source.fitness_calculation {
+                        best_food_source = food_source.clone();
+                    }
+                }
+
+                if food_sources[most_tried_index].try_counter > input.food_source_try_limit {
+                    Bee::scout_bee(
+                        &mut food_sources,
+                        most_tried_index,
+                        input.food_source_try_limit,
+                        input.lower_bound,
+                        input.upper_bound,
+                        input.decision_variable_count,
+                    );
+                }
             }
         }
         function_results.push(best_food_source.function_calculation);
