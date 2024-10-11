@@ -14,7 +14,7 @@ fn main() {
     );
 
     for run_counter in 0..input.run {
-        let mut best_food_source = FoodSource::new(vec![]);
+        let mut best_food_source = food_sources.iter().max_by(|x,y|x.fitness_calculation.total_cmp(&y.fitness_calculation)).unwrap().clone();
         for food_source in &food_sources {
             if best_food_source.fitness_calculation < food_source.fitness_calculation {
                 best_food_source = food_source.clone();
@@ -68,8 +68,9 @@ fn main() {
         }
         function_results.push(best_food_source.function_calculation);
         fitness_results.push(best_food_source.fitness_calculation);
+        
         give_output(
-            best_food_source,
+            &best_food_source,
             &function_results[..],
             &fitness_results[..],
             input.run,
