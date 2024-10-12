@@ -45,12 +45,6 @@ fn main() {
                     input.upper_bound,
                     input.lower_bound,
                 );
-                let mut most_tried_index = 0;
-                for i in 0..food_sources.len() {
-                    if food_sources[most_tried_index].try_counter < food_sources[i].try_counter {
-                        most_tried_index = i;
-                    }
-                }
 
                 for food_source in &food_sources {
                     if best_food_source.fitness_calculation < food_source.fitness_calculation {
@@ -58,15 +52,18 @@ fn main() {
                     }
                 }
 
-                if food_sources[most_tried_index].try_counter > input.food_source_try_limit {
-                    Bee::scout_bee(
-                        &mut food_sources,
-                        most_tried_index,
-                        input.food_source_try_limit,
-                        input.lower_bound,
-                        input.upper_bound,
-                        input.decision_variable_count,
-                    );
+                for index in 0..food_sources.len() {
+                    if food_sources[index].try_counter >= input.food_source_try_limit {
+                        Bee::scout_bee(
+                            &mut food_sources,
+                            index,
+                            input.food_source_try_limit,
+                            input.lower_bound,
+                            input.upper_bound,
+                            input.decision_variable_count,
+                        )
+                    }
+                    break;
                 }
             }
         }
