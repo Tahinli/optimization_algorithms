@@ -10,7 +10,7 @@ use crate::food::FoodSource;
 
 pub struct Input {
     pub decision_variable_count: usize,
-    pub food_source_number: u128,
+    pub food_source_number: usize,
     pub food_source_try_limit: u128,
     pub upper_bound: f64,
     pub lower_bound: f64,

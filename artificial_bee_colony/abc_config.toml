@@ -1,8 +1,8 @@
 [start_parameters]
-decision_variable_count = 3
-food_source_number = 100
-food_source_try_limit = 100
-upper_bound = 5
-lower_bound = -5
-iteration = 1000
-run = 5
+decision_variable_count = 50
+food_source_number = 20
+food_source_try_limit = 1000
+upper_bound = 100
+lower_bound = -100
+iteration = 100
+run = 30
