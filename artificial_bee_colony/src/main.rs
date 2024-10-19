@@ -19,13 +19,16 @@ fn main() {
         );
         let mut best_food_source = FoodSource::find_best_food_source(&food_sources);
 
-        
         for _ in 0..input.iteration {
             Bee::send_all_employed_bees(&mut food_sources, &input);
 
             Bee::send_all_onlooker_bees(&mut food_sources, &input);
-            
-            best_food_source = FoodSource::find_best_food_source(&food_sources);
+
+            let candidate_best_food_source = FoodSource::find_best_food_source(&food_sources);
+            if candidate_best_food_source.fitness_calculation > best_food_source.fitness_calculation
+            {
+                best_food_source = candidate_best_food_source;
+            }
 
             let most_tried_food_source_index =
                 FoodSource::find_most_tried_food_source_index(&food_sources);
