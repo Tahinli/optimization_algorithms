@@ -1,4 +1,4 @@
-use core::str;
+use core::{fmt, str};
 use std::{
     env::args,
     fs::{File, OpenOptions},
@@ -85,36 +85,38 @@ impl Input {
 
         let config_file = File::open("abc_config.toml").unwrap();
         let reader = BufReader::new(config_file);
-        let mut words = vec![];
+        let mut lines = vec![];
         reader
             .lines()
             .map(|unchecked_line| unchecked_line.unwrap())
-            .collect::<Vec<String>>()
-            .iter()
+            .filter(|unwrapped_line| !unwrapped_line.starts_with('#'))
             .for_each(|line| {
-                words.append(
+                lines.append(
                     &mut line
                         .split('=')
                         .map(|splitted| splitted.trim().to_string())
+                        .filter(|trimmed| !trimmed.starts_with('#'))
                         .collect::<Vec<String>>(),
                 )
             });
-        if words[0].as_str() == "[start_parameters]" {
-            for i in (1..words.len()).step_by(2) {
-                match words[i].as_str() {
+        if lines[0].starts_with("[input_parameters]") {
+            for i in 1..lines.len() {
+                match lines[i].as_str() {
                     "decision_variable_count" => {
-                        config_file_input.decision_variable_count = words[i + 1].parse().unwrap()
+                        config_file_input.decision_variable_count = lines[i + 1].parse().unwrap()
                     }
                     "food_source_number" => {
-                        config_file_input.food_source_number = words[i + 1].parse().unwrap()
+                        config_file_input.food_source_number = lines[i + 1].parse().unwrap()
                     }
+
                     "food_source_try_limit" => {
-                        config_file_input.food_source_try_limit = words[i + 1].parse().unwrap()
+                        config_file_input.food_source_try_limit = lines[i + 1].parse().unwrap()
                     }
-                    "upper_bound" => config_file_input.upper_bound = words[i + 1].parse().unwrap(),
-                    "lower_bound" => config_file_input.lower_bound = words[i + 1].parse().unwrap(),
-                    "iteration" => config_file_input.iteration = words[i + 1].parse().unwrap(),
-                    "run" => config_file_input.run = words[i + 1].parse().unwrap(),
+
+                    "upper_bound" => config_file_input.upper_bound = lines[i + 1].parse().unwrap(),
+                    "lower_bound" => config_file_input.lower_bound = lines[i + 1].parse().unwrap(),
+                    "iteration" => config_file_input.iteration = lines[i + 1].parse().unwrap(),
+                    "run" => config_file_input.run = lines[i + 1].parse().unwrap(),
                     _ => {}
                 }
             }
@@ -133,8 +135,8 @@ pub fn give_output(
     best_food_source: &FoodSource,
     function_results: &[f64],
     fitness_results: &[f64],
-    input_run: usize,
     run_counter: usize,
+    input: &Input,
 ) {
     let mut write_file = false;
     args()
@@ -146,8 +148,11 @@ pub fn give_output(
         });
 
     let mut print_buffer = vec![];
+    if run_counter == 0 {
+        writeln!(print_buffer, "[input_parameters]\n{}\n[runs]\n", input).unwrap();
+    }
     write!(print_buffer, "[{}]\n{}\n", run_counter, best_food_source).unwrap();
-    if run_counter == input_run - 1 {
+    if run_counter == input.run - 1 {
         let function_results_arithmetic_mean = arithmetic_mean(function_results);
         let function_results_standard_deviation =
             standard_deviation(function_results, function_results_arithmetic_mean);
@@ -156,7 +161,7 @@ pub fn give_output(
             standard_deviation(fitness_results, fitness_results_arithmetic_mean);
         write!(
             print_buffer,
-            "[function_calculations_results]\narithmetic_mean = {:e}\nstandard_deviation = {:e}\n\n[fitness_calculations_results]\narithmetic_mean = {:e}\nstandard_deviation = {:e}",
+            "[final_thoughts]\n\n[function_calculations]\narithmetic_mean = {:e}\nstandard_deviation = {:e}\n\n[fitness_calculations]\narithmetic_mean = {:e}\nstandard_deviation = {:e}",
             function_results_arithmetic_mean, function_results_standard_deviation, fitness_results_arithmetic_mean, fitness_results_standard_deviation
         )
         .unwrap();
@@ -224,4 +229,13 @@ fn show_help() {
     println!("   -w  -> --write_file |  Writes Results to abc_result.toml File");
     println!("   -h  -> --help       |  Shows Help                 ");
     println!("\n\n\n");
+}
+impl fmt::Display for Input {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "decision_variable_count = {}\nfood_source_number = {}\nfood_source_try_limit = {}\nupper_bound = {}\nlower_bound = {}\niteration = {}\nrun = {}\n",
+            self.decision_variable_count, self.food_source_number, self.food_source_try_limit, self.upper_bound, self.lower_bound, self.iteration, self.run
+        )
+    }
 }
