@@ -4,7 +4,7 @@ use crate::food::FoodSource;
 
 pub enum Bee {}
 impl Bee {
-    pub fn worker_bee(
+    pub fn employed_bee(
         food_sources: &mut [FoodSource],
         index: usize,
         decision_variable_count: usize,
@@ -31,7 +31,7 @@ impl Bee {
         }
         let mut candidate_coordinates = food_sources[index].coordinates.clone();
         candidate_coordinates[selected_coordinate_index] = candidate_one_index;
-        let candidate = FoodSource::get(candidate_coordinates);
+        let candidate = FoodSource::new(candidate_coordinates);
         food_sources[index].try_counter += 1;
         if candidate.fitness > food_sources[index].fitness {
             food_sources[index] = candidate;
@@ -49,7 +49,7 @@ impl Bee {
     ) {
         let fitness_for_index = food_sources[index].fitness;
         if fitness_for_index / total_fitness <= rand::thread_rng().gen_range(0.0..=1.0) {
-            Self::worker_bee(
+            Self::employed_bee(
                 food_sources,
                 index,
                 decision_variable_count,
@@ -74,7 +74,7 @@ impl Bee {
                     + rand::thread_rng().gen_range(0.0..=1.0) * (upper_bound - lower_bound);
                 coordinates_for_new.push(random);
             }
-            let new_food_source = FoodSource::get(coordinates_for_new);
+            let new_food_source = FoodSource::new(coordinates_for_new);
             food_sources[most_tried_index] = new_food_source;
         }
     }
