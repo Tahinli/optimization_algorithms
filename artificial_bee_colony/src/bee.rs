@@ -1,10 +1,53 @@
 use rand::Rng;
 
-use crate::food::FoodSource;
+use crate::{food::FoodSource, utils::Input};
 
 pub struct Bee {}
 impl Bee {
-    pub fn employed_bee(
+    pub fn send_all_employed_bees(
+        food_sources: &mut [FoodSource],
+        input:&Input,
+    ) {
+        for food_source_index in 0..input.food_source_number {
+            Bee::employed_bee(
+                food_sources,
+                food_source_index,
+                input.decision_variable_count,
+                input.upper_bound,
+                input.lower_bound,
+            );
+        }
+    }
+
+    pub fn send_all_onlooker_bees(food_sources: &mut [FoodSource],
+        input:&Input,) {
+        let total_fitness = food_sources
+                .iter()
+                .map(|food_source| food_source.fitness_calculation)
+                .sum();
+            let onlooker_bee_count = input.food_source_number;
+            let mut last_looked = 0;
+            for _ in 0..onlooker_bee_count {
+                loop {
+                    if last_looked >= input.food_source_number {
+                        last_looked = 0;
+                    }
+                    if Bee::onlooker_bee(
+                        food_sources,
+                        last_looked,
+                        total_fitness,
+                        input.decision_variable_count,
+                        input.upper_bound,
+                        input.lower_bound,
+                    ) {
+                        break;
+                    }
+                    last_looked += 1;
+                }
+            }
+    }
+
+    fn employed_bee(
         food_sources: &mut [FoodSource],
         food_source_index: usize,
         decision_variable_count: usize,
@@ -20,7 +63,7 @@ impl Bee {
         );
     }
 
-    pub fn onlooker_bee(
+    fn onlooker_bee(
         food_sources: &mut [FoodSource],
         food_source_index: usize,
         total_fitness: f64,
