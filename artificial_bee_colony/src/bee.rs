@@ -70,13 +70,8 @@ impl Bee {
         if food_sources[most_tried_index].try_counter > limit {
             let mut coordinates_for_new = vec![];
             for _ in 0..decision_variable_count {
-                let random = if upper_bound * lower_bound > 0.0 {
-                    lower_bound
-                        + rand::thread_rng().gen_range(0.0..=1.0) * (upper_bound - lower_bound)
-                } else {
-                    lower_bound
-                        + rand::thread_rng().gen_range(0.0..=1.0) * (upper_bound + lower_bound)
-                };
+                let random = lower_bound
+                + rand::thread_rng().gen_range(0.0..=1.0) * (upper_bound - lower_bound);
                 if random > upper_bound {
                     coordinates_for_new.push(upper_bound);
                 } else if random < lower_bound {
