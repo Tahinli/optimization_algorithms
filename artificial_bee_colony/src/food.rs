@@ -14,7 +14,7 @@ impl FoodSource {
     pub fn new(coordinates: Vec<f64>) -> Self {
         let mut food_source = FoodSource {
             fitness_calculation: 0.0,
-            function_calculation: 0.0,
+            function_calculation: 1.0,
             coordinates,
             try_counter: 0,
         };
