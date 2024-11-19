@@ -57,6 +57,14 @@ impl FoodSource {
         }
         food_sources
     }
+
+    pub fn find_best_food_source(food_sources: &Vec<FoodSource>) -> FoodSource {
+        food_sources
+            .iter()
+            .max_by(|x, y| x.fitness_calculation.total_cmp(&y.fitness_calculation))
+            .unwrap()
+            .clone()
+    }
 }
 
 impl fmt::Display for FoodSource {
