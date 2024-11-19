@@ -212,7 +212,7 @@ fn standard_deviation(results: &[f64], arithmetic_mean: f64) -> f64 {
             .iter()
             .map(|function_result| (function_result - arithmetic_mean).powi(2))
             .sum::<f64>()
-            / (results.len() - 1) as f64,
+            / results.len() as f64,
     )
 }
 
