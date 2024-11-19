@@ -32,14 +32,16 @@ fn main() {
 
             let most_tried_food_source_index =
                 FoodSource::find_most_tried_food_source_index(&food_sources);
-            Bee::scout_bee(
-                &mut food_sources,
-                most_tried_food_source_index,
-                input.food_source_try_limit,
-                input.lower_bound,
-                input.upper_bound,
-                input.decision_variable_count,
-            );
+            if food_sources[most_tried_food_source_index].try_counter > input.food_source_try_limit
+            {
+                Bee::scout_bee(
+                    &mut food_sources,
+                    most_tried_food_source_index,
+                    input.lower_bound,
+                    input.upper_bound,
+                    input.decision_variable_count,
+                );
+            }
         }
         function_results.push(best_food_source.function_calculation);
         fitness_results.push(best_food_source.fitness_calculation);

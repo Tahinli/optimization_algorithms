@@ -11,7 +11,7 @@ pub struct FoodSource {
 }
 
 impl FoodSource {
-    pub fn new(coordinates: Vec<f64>) -> Self {
+    pub fn from_coordinates(coordinates: Vec<f64>) -> Self {
         let mut food_source = FoodSource {
             fitness_calculation: 0.0,
             function_calculation: 1.0,
@@ -21,6 +21,16 @@ impl FoodSource {
         food_source.fitness_function();
         food_source
     }
+
+    pub fn new(decision_variable_count: usize, lower_bound: f64, upper_bound: f64) -> Self {
+        let mut coordinates = vec![];
+        for _ in 0..decision_variable_count {
+            let random = rand::thread_rng().gen_range(lower_bound..=upper_bound);
+            coordinates.push(random);
+        }
+        FoodSource::from_coordinates(coordinates)
+    }
+
     fn fitness_function(&mut self) {
         let calculation = Self::calculate(self.coordinates.clone());
         self.function_calculation = calculation;
@@ -48,12 +58,9 @@ impl FoodSource {
         let mut food_sources = vec![];
 
         for _ in 0..food_source_number {
-            let mut coordinates = vec![];
-            for _ in 0..decision_variable_count {
-                let random = rand::thread_rng().gen_range(lower_bound..=upper_bound);
-                coordinates.push(random);
-            }
-            food_sources.push(FoodSource::new(coordinates));
+            let new_food_source =
+                FoodSource::new(decision_variable_count, lower_bound, upper_bound);
+            food_sources.push(new_food_source);
         }
         food_sources
     }
