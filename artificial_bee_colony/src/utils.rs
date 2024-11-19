@@ -89,12 +89,13 @@ impl Input {
         reader
             .lines()
             .map(|unchecked_line| unchecked_line.unwrap())
-            .map(|mut line|{
+            .map(|mut line| {
                 if let Some(comment_location) = line.find('#') {
                     let _ = line.split_off(comment_location);
                 }
                 line
             })
+            .filter(|uncommented_line| !uncommented_line.is_empty())
             .for_each(|line| {
                 lines.append(
                     &mut line
@@ -103,6 +104,7 @@ impl Input {
                         .collect::<Vec<String>>(),
                 )
             });
+
         if lines[0].starts_with("[input_parameters]") {
             for i in 1..lines.len() {
                 match lines[i].as_str() {
