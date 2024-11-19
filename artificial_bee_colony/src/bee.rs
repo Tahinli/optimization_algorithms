@@ -24,7 +24,7 @@ impl Bee {
 
         let probabilities = food_sources
             .iter()
-            .map(|x| x.fitness_calculation / total_fitness)
+            .map(|food_source| food_source.fitness_calculation / total_fitness)
             .collect::<Vec<f64>>();
 
         let onlooker_bee_count = input.food_source_number;
