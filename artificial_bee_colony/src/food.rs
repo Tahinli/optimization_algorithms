@@ -18,9 +18,7 @@ impl FoodSource {
             coordinates,
             try_counter: 0,
         };
-        if !food_source.coordinates.is_empty() {
-            food_source.fitness_function();
-        }
+        food_source.fitness_function();
         food_source
     }
     fn fitness_function(&mut self) {
@@ -63,10 +61,14 @@ impl FoodSource {
 
 impl fmt::Display for FoodSource {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
+        writeln!(
             f,
-            "function_calculation = {}\nfitness_calculation = {}\ncoordinates = {:#?}\ntry_counter = {}\n",
-            self.function_calculation, self.fitness_calculation, self.coordinates, self.try_counter
-        )
+            "function_calculation = {:e}\nfitness_calculation = {:e}\ncoordinates = [",
+            self.function_calculation, self.fitness_calculation
+        )?;
+        for coordinate in &self.coordinates {
+            writeln!(f, "   {:e},", coordinate)?;
+        }
+        write!(f, "]\ntry_counter = {}\n", self.try_counter)
     }
 }
