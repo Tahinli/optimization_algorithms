@@ -1,3 +1,5 @@
+use core::fmt;
+
 use rand::Rng;
 
 #[derive(Debug, Clone)]
@@ -53,5 +55,15 @@ impl FoodSource {
             food_sources.push(FoodSource::get(coordinates));
         }
         food_sources
+    }
+}
+
+impl fmt::Display for FoodSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "fitness = {}\ncoordinates = {:#?}\ntry_counter = {}\n",
+            self.fitness, self.coordinates, self.try_counter
+        )
     }
 }

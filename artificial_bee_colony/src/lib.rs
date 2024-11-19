@@ -1,8 +1,10 @@
 use std::{
-    env,
-    fs::File,
-    io::{self, BufRead, BufReader},
+    env::args,
+    fs::{File, OpenOptions},
+    io::{self, BufRead, BufReader, Write},
 };
+
+use food::FoodSource;
 
 pub mod bee;
 pub mod food;
@@ -18,13 +20,15 @@ pub struct Input {
 }
 impl Input {
     pub fn get() -> Self {
-        let args = env::args().collect::<Vec<String>>();
-        if args.len() > 1 {
-            if args[1] == "-f" || args[1] == "--file" {
-                Input::read_config_file_input()
-            } else {
-                Input::user_interactive_input()
+        let mut read_file = false;
+        for arg in args().collect::<Vec<String>>() {
+            match arg.as_str() {
+                "-r" | "--read-file" => read_file = true,
+                _ => {}
             }
+        }
+        if read_file {
+            Input::read_config_file_input()
         } else {
             Input::user_interactive_input()
         }
@@ -73,7 +77,7 @@ impl Input {
             run: 0,
         };
 
-        let config_file = File::open("abc.toml").unwrap();
+        let config_file = File::open("abc_config.toml").unwrap();
         let reader = BufReader::new(config_file);
         let mut words = vec![];
         for line in reader.lines().map(|x| x.unwrap()).collect::<Vec<String>>() {
@@ -83,26 +87,24 @@ impl Input {
                 .collect::<Vec<String>>();
             words.append(&mut parsed);
         }
-
-        for i in 0..words.len() {
-            if i % 2 == 0 {
-                continue;
-            }
-            match words[i].as_str() {
-                "decision_variable_count" => {
-                    config_file_input.decision_variable_count = words[i + 1].parse().unwrap()
+        if words[0].as_str() == "[start_parameters]" {
+            for i in (1..words.len()).step_by(2) {
+                match words[i].as_str() {
+                    "decision_variable_count" => {
+                        config_file_input.decision_variable_count = words[i + 1].parse().unwrap()
+                    }
+                    "food_source_number" => {
+                        config_file_input.food_source_number = words[i + 1].parse().unwrap()
+                    }
+                    "food_source_try_limit" => {
+                        config_file_input.food_source_try_limit = words[i + 1].parse().unwrap()
+                    }
+                    "upper_bound" => config_file_input.upper_bound = words[i + 1].parse().unwrap(),
+                    "lower_bound" => config_file_input.lower_bound = words[i + 1].parse().unwrap(),
+                    "iteration" => config_file_input.iteration = words[i + 1].parse().unwrap(),
+                    "run" => config_file_input.run = words[i + 1].parse().unwrap(),
+                    _ => {}
                 }
-                "food_source_number" => {
-                    config_file_input.food_source_number = words[i + 1].parse().unwrap()
-                }
-                "food_source_try_limit" => {
-                    config_file_input.food_source_try_limit = words[i + 1].parse().unwrap()
-                }
-                "upper_bound" => config_file_input.upper_bound = words[i + 1].parse().unwrap(),
-                "lower_bound" => config_file_input.lower_bound = words[i + 1].parse().unwrap(),
-                "iteration" => config_file_input.iteration = words[i + 1].parse().unwrap(),
-                "run" => config_file_input.run = words[i + 1].parse().unwrap(),
-                _ => {}
             }
         }
         config_file_input
@@ -113,4 +115,56 @@ impl Input {
         io::stdin().read_line(&mut input).unwrap();
         input.trim().to_string()
     }
+}
+
+pub fn give_output(best_food_source: FoodSource, run_counter: usize) {
+    let mut write_file = false;
+    for arg in args().collect::<Vec<String>>() {
+        match arg.as_str() {
+            "-w" | "--write-file" => write_file = true,
+            _ => {}
+        }
+    }
+    if write_file {
+        write_output_file(best_food_source, run_counter)
+    } else {
+        give_terminal_output(best_food_source, run_counter)
+    }
+}
+
+fn give_terminal_output(best_food_source: FoodSource, run_counter: usize) {
+    println!("[{}]\n{}\n", run_counter, best_food_source)
+}
+
+fn write_output_file(best_food_source: FoodSource, run_counter: usize) {
+    let mut print_buffer = vec![];
+    write!(print_buffer, "[{}]\n{}\n", run_counter, best_food_source).unwrap();
+
+    let mut file_try_counter = 0;
+    let file_name = "abc_result";
+    let file_extension = "toml";
+    let mut file_path = format!("{}.{}", file_name, file_extension);
+
+    let mut file;
+    if run_counter == 0 {
+        while File::open(file_path.clone()).is_ok() {
+            file_try_counter += 1;
+            file_path = format!("{}{}.{}", file_name, file_try_counter, file_extension);
+        }
+        file = File::create_new(file_path).unwrap();
+    } else {
+        while File::open(file_path.clone()).is_ok() {
+            file_try_counter += 1;
+            file_path = format!("{}{}.{}", file_name, file_try_counter, file_extension);
+        }
+        if file_try_counter > 1 {
+            file_path = format!("{}{}.{}", file_name, file_try_counter - 1, file_extension);
+        } else {
+            file_path = format!("{}.{}", file_name, file_extension);
+        }
+        file = OpenOptions::new().append(true).open(file_path).unwrap();
+    }
+
+    file.write_all(&print_buffer).unwrap();
+    file.flush().unwrap();
 }
