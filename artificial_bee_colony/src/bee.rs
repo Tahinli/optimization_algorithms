@@ -71,14 +71,8 @@ impl Bee {
             let mut coordinates_for_new = vec![];
             for _ in 0..decision_variable_count {
                 let random = lower_bound
-                + rand::thread_rng().gen_range(0.0..=1.0) * (upper_bound - lower_bound);
-                if random > upper_bound {
-                    coordinates_for_new.push(upper_bound);
-                } else if random < lower_bound {
-                    coordinates_for_new.push(lower_bound);
-                } else {
-                    coordinates_for_new.push(random);
-                }
+                    + rand::thread_rng().gen_range(0.0..=1.0) * (upper_bound - lower_bound);
+                coordinates_for_new.push(random);
             }
             let new_food_source = FoodSource::get(coordinates_for_new);
             food_sources[most_tried_index] = new_food_source;
