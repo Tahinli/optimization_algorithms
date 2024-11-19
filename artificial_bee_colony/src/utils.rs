@@ -89,13 +89,17 @@ impl Input {
         reader
             .lines()
             .map(|unchecked_line| unchecked_line.unwrap())
-            .filter(|unwrapped_line| !unwrapped_line.starts_with('#'))
+            .map(|mut line|{
+                if let Some(comment_location) = line.find('#') {
+                    let _ = line.split_off(comment_location);
+                }
+                line
+            })
             .for_each(|line| {
                 lines.append(
                     &mut line
                         .split('=')
                         .map(|splitted| splitted.trim().to_string())
-                        .filter(|trimmed| !trimmed.starts_with('#'))
                         .collect::<Vec<String>>(),
                 )
             });
