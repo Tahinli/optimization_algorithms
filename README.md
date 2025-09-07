@@ -2,11 +2,11 @@
 
 ## Steepest Descent
 
-1- We need starting solution x^t. Zeroise the iteration which is t. Specify tolerance value as ε.
+1- We need starting solution x^t. Reset the iteration which is t. Specify tolerance value as ε.
 
 2- at x^t point calculate g^t gradient and ||g^t|| then if ||g^t|| <= ε stop it, else continue.
 
-3- Specfify road direction as d^t = -g^t.
+3- Specify road direction as d^t = -g^t.
 
 4- Calculate f(x^t + a^t*d^t) as like a^t (step size) is minimum.
 
