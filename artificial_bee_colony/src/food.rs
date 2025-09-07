@@ -40,7 +40,7 @@ impl FoodSource {
     }
 
     pub fn create_food_sources(
-        food_source_number: u128,
+        food_source_number: usize,
         decision_variable_count: usize,
         upper_bound: f64,
         lower_bound: f64,
@@ -58,12 +58,21 @@ impl FoodSource {
         food_sources
     }
 
-    pub fn find_best_food_source(food_sources: &Vec<FoodSource>) -> FoodSource {
+    pub fn find_best_food_source(food_sources: &[FoodSource]) -> FoodSource {
         food_sources
             .iter()
             .max_by(|x, y| x.fitness_calculation.total_cmp(&y.fitness_calculation))
             .unwrap()
             .clone()
+    }
+
+    pub fn find_most_tried_food_source_index(food_sources: &[FoodSource]) -> usize {
+        let (most_tried_food_source_index, _) = food_sources
+            .iter()
+            .enumerate()
+            .max_by(|(_, x), (_, y)| x.try_counter.cmp(&y.try_counter))
+            .unwrap();
+        most_tried_food_source_index
     }
 }
 
