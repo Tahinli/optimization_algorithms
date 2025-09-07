@@ -11,11 +11,11 @@ fn main() {
         input.lower_bound,
     );
 
-    for _ in 0..input.run {
+    for run_counter in 0..input.run {
         let mut best = FoodSource::get(vec![]);
         for food_source in &food_sources {
             if best.fitness < food_source.fitness {
-                best.coordinates = food_source.coordinates.clone();
+                best.coordinates.clone_from(&food_source.coordinates);
                 best.fitness = food_source.fitness;
             }
         }
@@ -57,7 +57,8 @@ fn main() {
                 );
             }
         }
-
+        println!("-------------------------------");
+        println!("\n\t|Run {}|\n", run_counter);
         println!("{:#?}", best);
     }
 }
