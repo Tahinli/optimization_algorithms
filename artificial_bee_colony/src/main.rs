@@ -50,8 +50,8 @@ fn main() {
             &best_food_source,
             &function_results[..],
             &fitness_results[..],
-            input.run,
             run_counter,
+            &input,
         )
     }
 }
