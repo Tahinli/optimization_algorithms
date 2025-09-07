@@ -119,7 +119,7 @@ impl Input {
 }
 
 pub fn give_output(
-    best_food_source: FoodSource,
+    best_food_source: &FoodSource,
     function_results: &[f64],
     fitness_results: &[f64],
     input_run: usize,
@@ -144,7 +144,7 @@ pub fn give_output(
             standard_deviation(fitness_results, fitness_results_arithmetic_mean);
         write!(
             print_buffer,
-            "[evaluation_function_results]\nfunction_results_arithmetic_mean = {}\nfunction_results_standard_deviation = {}\n\n[evaluation_fitness_results]\nfitness_results_arithmetic_mean = {}\nfitness_results_standard_deviation = {}",
+            "[function_calculation_results]\narithmetic_mean = {:e}\nstandard_deviation = {:e}\n\n[fitness_calculation_results]\narithmetic_mean = {:e}\nstandard_deviation = {:e}",
             function_results_arithmetic_mean, function_results_standard_deviation, fitness_results_arithmetic_mean, fitness_results_standard_deviation
         )
         .unwrap();
