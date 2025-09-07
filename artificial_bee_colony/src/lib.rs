@@ -3,6 +3,7 @@ use std::{
     env::args,
     fs::{File, OpenOptions},
     io::{self, BufRead, BufReader, Write},
+    process::exit,
 };
 
 use food::FoodSource;
@@ -24,10 +25,15 @@ impl Input {
         let mut read_file = false;
         for arg in args().collect::<Vec<String>>() {
             match arg.as_str() {
-                "-r" | "--read-file" => read_file = true,
+                "-r" | "--read_file" => read_file = true,
+                "-h" | "--help" => {
+                    show_help();
+                    exit(0);
+                }
                 _ => {}
             }
         }
+
         if read_file {
             Input::read_config_file_input()
         } else {
@@ -128,7 +134,7 @@ pub fn give_output(
     let mut write_file = false;
     for arg in args().collect::<Vec<String>>() {
         match arg.as_str() {
-            "-w" | "--write-file" => write_file = true,
+            "-w" | "--write_file" => write_file = true,
             _ => {}
         }
     }
@@ -144,7 +150,7 @@ pub fn give_output(
             standard_deviation(fitness_results, fitness_results_arithmetic_mean);
         write!(
             print_buffer,
-            "[function_calculation_results]\narithmetic_mean = {:e}\nstandard_deviation = {:e}\n\n[fitness_calculation_results]\narithmetic_mean = {:e}\nstandard_deviation = {:e}",
+            "[function_calculations_results]\narithmetic_mean = {:e}\nstandard_deviation = {:e}\n\n[fitness_calculations_results]\narithmetic_mean = {:e}\nstandard_deviation = {:e}",
             function_results_arithmetic_mean, function_results_standard_deviation, fitness_results_arithmetic_mean, fitness_results_standard_deviation
         )
         .unwrap();
@@ -204,4 +210,14 @@ fn standard_deviation(results: &[f64], arithmetic_mean: f64) -> f64 {
         total_difference_square += (function_result - arithmetic_mean).powi(2)
     }
     f64::sqrt(total_difference_square / (results.len() - 1) as f64)
+}
+
+fn show_help() {
+    println!("\n\n\n");
+    println!("   Arguments           |  Details                    ");
+    println!("----------------------------------------------------------------------");
+    println!("   -r  -> --read_file  |  Reads Config from abc_config.toml File");
+    println!("   -w  -> --write_file |  Writes Results to abc_result.toml File");
+    println!("   -h  -> --help       |  Shows Help                 ");
+    println!("\n\n\n");
 }
