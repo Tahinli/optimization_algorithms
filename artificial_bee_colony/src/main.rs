@@ -18,16 +18,8 @@ fn main() {
     );
 
     for run_counter in 0..input.run {
-        let mut best_food_source = food_sources
-            .iter()
-            .max_by(|x, y| x.fitness_calculation.total_cmp(&y.fitness_calculation))
-            .unwrap()
-            .clone();
-        for food_source in &food_sources {
-            if best_food_source.fitness_calculation < food_source.fitness_calculation {
-                best_food_source = food_source.clone();
-            }
-        }
+        let mut best_food_source = FoodSource::find_best_food_source(&food_sources);
+
         for _ in 0..input.iteration {
             for index in 0..input.food_source_number as usize {
                 Bee::employed_bee(
@@ -37,10 +29,16 @@ fn main() {
                     input.upper_bound,
                     input.lower_bound,
                 );
-                let mut total_fitness = 0.0;
-                for food_source in &food_sources {
-                    total_fitness += food_source.fitness_calculation;
+            }
+            let total_fitness = food_sources.iter().map(|food_source|food_source.fitness_calculation).sum();
+            let mut last_looked = 0;
+            for _ in 0..input.food_source_number {
+                if last_looked >= input.food_source_number {
+                    last_looked = 0;
                 }
+                
+            }
+            for index in 0..input.food_source_number as usize {
                 Bee::onlooker_bee(
                     &mut food_sources,
                     index,
@@ -49,25 +47,22 @@ fn main() {
                     input.upper_bound,
                     input.lower_bound,
                 );
+            }
+            // önce employed biticek sonra onlooker bakacak ve bakılandan tekrar başla
+            best_food_source = FoodSource::find_best_food_source(&food_sources);
 
-                for food_source in &food_sources {
-                    if best_food_source.fitness_calculation < food_source.fitness_calculation {
-                        best_food_source = food_source.clone();
-                    }
-                }
-
-                for index in 0..food_sources.len() {
-                    if food_sources[index].try_counter >= input.food_source_try_limit {
-                        Bee::scout_bee(
-                            &mut food_sources,
-                            index,
-                            input.food_source_try_limit,
-                            input.lower_bound,
-                            input.upper_bound,
-                            input.decision_variable_count,
-                        );
-                        break;
-                    }
+            for index in 0..food_sources.len() {
+                if food_sources[index].try_counter >= input.food_source_try_limit {
+                    // en büyüğü bul sonra limiti geçiyosa kaşif gider
+                    Bee::scout_bee(
+                        &mut food_sources,
+                        index,
+                        input.food_source_try_limit,
+                        input.lower_bound,
+                        input.upper_bound,
+                        input.decision_variable_count,
+                    );
+                    break;
                 }
             }
         }
