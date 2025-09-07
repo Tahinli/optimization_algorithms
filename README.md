@@ -1,4 +1,4 @@
-# optimization_algorithms
+# Optimization Algorithms
 
 ## Steepest Descent
 
