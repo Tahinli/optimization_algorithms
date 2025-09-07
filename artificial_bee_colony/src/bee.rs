@@ -22,6 +22,11 @@ impl Bee {
             .map(|food_source| food_source.fitness_calculation)
             .sum::<f64>();
 
+        let probabilities = food_sources
+            .iter()
+            .map(|x| x.fitness_calculation / total_fitness)
+            .collect::<Vec<f64>>();
+
         let onlooker_bee_count = input.food_source_number;
         let mut where_to_look = 0;
         for _ in 0..onlooker_bee_count {
@@ -30,8 +35,7 @@ impl Bee {
                     where_to_look = 0;
                 }
 
-                let fitness_for_index = food_sources[where_to_look].fitness_calculation;
-                if rand::thread_rng().gen_range(0.0..=1.0) < fitness_for_index / total_fitness {
+                if rand::thread_rng().gen_range(0.0..=1.0) < probabilities[where_to_look] {
                     Bee::onlooker_bee(
                         food_sources,
                         where_to_look,
