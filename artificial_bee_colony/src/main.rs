@@ -13,7 +13,7 @@ fn main() {
     );
 
     for run_counter in 0..input.run {
-        let mut best_food_source = FoodSource::get(vec![]);
+        let mut best_food_source = FoodSource::new(vec![]);
         for food_source in &food_sources {
             if best_food_source.fitness < food_source.fitness {
                 best_food_source
@@ -24,7 +24,7 @@ fn main() {
         }
         for _ in 0..input.iteration {
             for index in 0..input.food_source_number as usize {
-                Bee::worker_bee(
+                Bee::employed_bee(
                     &mut food_sources,
                     index,
                     input.decision_variable_count,
