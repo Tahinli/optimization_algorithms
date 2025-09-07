@@ -19,41 +19,12 @@ fn main() {
         );
         let mut best_food_source = FoodSource::find_best_food_source(&food_sources);
 
+        
         for _ in 0..input.iteration {
-            for food_source_index in 0..input.food_source_number {
-                Bee::employed_bee(
-                    &mut food_sources,
-                    food_source_index,
-                    input.decision_variable_count,
-                    input.upper_bound,
-                    input.lower_bound,
-                );
-            }
+            Bee::send_all_employed_bees(&mut food_sources, &input);
 
-            let total_fitness = food_sources
-                .iter()
-                .map(|food_source| food_source.fitness_calculation)
-                .sum();
-            let onlooker_bee_count = input.food_source_number;
-            let mut last_looked = 0;
-            for _ in 0..onlooker_bee_count {
-                loop {
-                    if last_looked >= input.food_source_number {
-                        last_looked = 0;
-                    }
-                    if Bee::onlooker_bee(
-                        &mut food_sources,
-                        last_looked,
-                        total_fitness,
-                        input.decision_variable_count,
-                        input.upper_bound,
-                        input.lower_bound,
-                    ) {
-                        break;
-                    }
-                    last_looked += 1;
-                }
-            }
+            Bee::send_all_onlooker_bees(&mut food_sources, &input);
+            
             best_food_source = FoodSource::find_best_food_source(&food_sources);
 
             let most_tried_food_source_index =
