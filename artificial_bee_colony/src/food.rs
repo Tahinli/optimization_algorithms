@@ -42,11 +42,10 @@ impl FoodSource {
     }
 
     fn calculate(decision_variables: Vec<f64>) -> f64 {
-        let mut result = 0.0;
-        for element in decision_variables {
-            result += element * element;
-        }
-        result
+        decision_variables
+            .iter()
+            .map(|element| element * element)
+            .sum()
     }
 
     pub fn create_food_sources(
@@ -68,7 +67,11 @@ impl FoodSource {
     pub fn find_best_food_source(food_sources: &[FoodSource]) -> FoodSource {
         food_sources
             .iter()
-            .max_by(|x, y| x.fitness_calculation.total_cmp(&y.fitness_calculation))
+            .max_by(|food_source_one, food_source_two| {
+                food_source_one
+                    .fitness_calculation
+                    .total_cmp(&food_source_two.fitness_calculation)
+            })
             .unwrap()
             .clone()
     }
@@ -77,7 +80,11 @@ impl FoodSource {
         let (most_tried_food_source_index, _) = food_sources
             .iter()
             .enumerate()
-            .max_by(|(_, x), (_, y)| x.try_counter.cmp(&y.try_counter))
+            .max_by(|(_, food_source_one), (_, food_source_two)| {
+                food_source_one
+                    .try_counter
+                    .cmp(&food_source_two.try_counter)
+            })
             .unwrap();
         most_tried_food_source_index
     }
@@ -90,9 +97,9 @@ impl fmt::Display for FoodSource {
             "function_calculation = {:e}\nfitness_calculation = {:e}\ncoordinates = [",
             self.function_calculation, self.fitness_calculation
         )?;
-        for coordinate in &self.coordinates {
-            writeln!(f, "   {:e},", coordinate)?;
-        }
+        self.coordinates
+            .iter()
+            .try_for_each(|coordinate| writeln!(f, "   {:e},", coordinate))?;
         write!(f, "]\ntry_counter = {}\n", self.try_counter)
     }
 }

@@ -20,16 +20,18 @@ pub struct Input {
 impl Input {
     pub fn get() -> Self {
         let mut read_file = false;
-        for arg in args().collect::<Vec<String>>() {
-            match arg.as_str() {
+
+        args()
+            .collect::<Vec<String>>()
+            .iter()
+            .for_each(|arg| match arg.as_str() {
                 "-r" | "--read_file" => read_file = true,
                 "-h" | "--help" => {
                     show_help();
                     exit(0);
                 }
                 _ => {}
-            }
-        }
+            });
 
         if read_file {
             Input::read_config_file_input()
@@ -84,13 +86,19 @@ impl Input {
         let config_file = File::open("abc_config.toml").unwrap();
         let reader = BufReader::new(config_file);
         let mut words = vec![];
-        for line in reader.lines().map(|x| x.unwrap()).collect::<Vec<String>>() {
-            let mut parsed = line
-                .split('=')
-                .map(|x| x.trim().to_string())
-                .collect::<Vec<String>>();
-            words.append(&mut parsed);
-        }
+        reader
+            .lines()
+            .map(|unchecked_line| unchecked_line.unwrap())
+            .collect::<Vec<String>>()
+            .iter()
+            .for_each(|line| {
+                words.append(
+                    &mut line
+                        .split('=')
+                        .map(|splitted| splitted.trim().to_string())
+                        .collect::<Vec<String>>(),
+                )
+            });
         if words[0].as_str() == "[start_parameters]" {
             for i in (1..words.len()).step_by(2) {
                 match words[i].as_str() {
@@ -129,12 +137,13 @@ pub fn give_output(
     run_counter: usize,
 ) {
     let mut write_file = false;
-    for arg in args().collect::<Vec<String>>() {
-        match arg.as_str() {
+    args()
+        .collect::<Vec<String>>()
+        .iter()
+        .for_each(|arg| match arg.as_str() {
             "-w" | "--write_file" => write_file = true,
             _ => {}
-        }
-    }
+        });
 
     let mut print_buffer = vec![];
     write!(print_buffer, "[{}]\n{}\n", run_counter, best_food_source).unwrap();
@@ -194,19 +203,17 @@ fn write_output_file(print_buffer: &[u8], run_counter: usize) {
 }
 
 fn arithmetic_mean(results: &[f64]) -> f64 {
-    let mut total_results = 0.0;
-    for function_result in results {
-        total_results += function_result
-    }
-    total_results / results.len() as f64
+    results.iter().sum::<f64>() / results.len() as f64
 }
 
 fn standard_deviation(results: &[f64], arithmetic_mean: f64) -> f64 {
-    let mut total_difference_square = 0.0;
-    for function_result in results {
-        total_difference_square += (function_result - arithmetic_mean).powi(2)
-    }
-    f64::sqrt(total_difference_square / (results.len() - 1) as f64)
+    f64::sqrt(
+        results
+            .iter()
+            .map(|function_result| (function_result - arithmetic_mean).powi(2))
+            .sum::<f64>()
+            / (results.len() - 1) as f64,
+    )
 }
 
 fn show_help() {
