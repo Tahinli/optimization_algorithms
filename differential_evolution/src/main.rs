@@ -32,27 +32,27 @@ fn main() {
         upper_bound,
         lower_bound,
     );
-
     for _ in 0..iteration {
+        let mut new_population: Vec<Vec<f64>> = vec![];
         for (current_location, element) in population.clone().iter().enumerate() {
             let new_volunteer = mutate_and_recombine(
                 current_location,
                 crossover_rate,
                 scale_factor,
                 decision_variable_count,
+                upper_bound,
+                lower_bound,
                 population.clone(),
             );
-
             let current_calculation = calculate(element.clone());
-            let new_calculation = calculate(new_volunteer.clone());
+            let new_calculation: f64 = calculate(new_volunteer.clone());
             if new_calculation < current_calculation {
-                println!(
-                    "Changed | Old = {} | New {}",
-                    current_calculation, new_calculation
-                );
-                population[current_location] = new_volunteer;
+                new_population.push(new_volunteer);
+            } else {
+                new_population.push(element.clone());
             }
         }
+        population = new_population;
     }
 
     println!("{:#?}", population);
@@ -76,8 +76,8 @@ fn create_population(
     for i in 0..population_number {
         let mut randomized_single_dimension = vec![];
         for _ in 0..decision_variable_count {
-            randomized_single_dimension
-                .push(rand::thread_rng().gen_range(lower_bound..=upper_bound));
+            let random = rand::thread_rng().gen_range(lower_bound..=upper_bound);
+            randomized_single_dimension.push(random);
         }
         population[i as usize] = randomized_single_dimension;
     }
@@ -97,27 +97,24 @@ fn mutate_and_recombine(
     crossover_rate: f64,
     scale_factor: f64,
     decision_variable_count: usize,
+    upper_bound: f64,
+    lower_bound: f64,
     population: Vec<Vec<f64>>,
 ) -> Vec<f64> {
     let definite_random_decision_index: usize =
         rand::thread_rng().gen_range(0..=decision_variable_count);
-    let mut definite_random = rand::thread_rng().gen_range(0..population.len());
-
-    while definite_random == current_location {
-        definite_random = rand::thread_rng().gen_range(0..population.len());
-    }
 
     let mut chosen_indices = vec![];
     for _ in 0..3 {
         chosen_indices.sort();
 
-        let mut maybe = rand::thread_rng().gen_range(0..population.len());
-        while maybe == current_location || chosen_indices.binary_search(&maybe).is_ok() {
-            maybe = rand::thread_rng().gen_range(0..population.len());
+        let mut maybe_index = rand::thread_rng().gen_range(0..population.len());
+        while maybe_index == current_location || chosen_indices.binary_search(&maybe_index).is_ok()
+        {
+            maybe_index = rand::thread_rng().gen_range(0..population.len());
         }
-        chosen_indices.push(maybe);
+        chosen_indices.push(maybe_index);
     }
-
     let ingredients: Vec<Vec<f64>> = vec![
         population[chosen_indices[0]].clone(),
         population[chosen_indices[1]].clone(),
@@ -127,15 +124,27 @@ fn mutate_and_recombine(
     let mut new_volunteer = vec![];
 
     for i in 0..decision_variable_count {
+        let new_enemy =
+            match ingredients[0][i] + scale_factor * (ingredients[1][i] - ingredients[2][i]) {
+                result => {
+                    if result > upper_bound {
+                        upper_bound
+                    } else if result < lower_bound {
+                        lower_bound
+                    } else {
+                        result
+                    }
+                }
+            };
         if rand::thread_rng().gen_range(0.0..=1.0) < crossover_rate
             || i == definite_random_decision_index
         {
-            new_volunteer
-                .push(ingredients[0][i] + scale_factor * (ingredients[1][i] - ingredients[2][i]));
+            new_volunteer.push(new_enemy);
         } else {
-            new_volunteer.push(population[definite_random][i]);
+            let current_value = population[current_location][i];
+            new_volunteer.push(current_value);
         }
     }
-    
+
     new_volunteer
 }
