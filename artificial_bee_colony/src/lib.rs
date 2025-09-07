@@ -120,7 +120,7 @@ impl Input {
 
 pub fn give_output(
     best_food_source: FoodSource,
-    fitness_results: &[f64],
+    function_results: &[f64],
     input_run: usize,
     run_counter: usize,
 ) {
@@ -135,8 +135,8 @@ pub fn give_output(
     let mut print_buffer = vec![];
     write!(print_buffer, "[{}]\n{}\n", run_counter, best_food_source).unwrap();
     if run_counter == input_run - 1 {
-        let arithmetic_mean = arithmetic_mean(fitness_results);
-        let standard_deviation = standard_deviation(fitness_results, arithmetic_mean);
+        let arithmetic_mean = arithmetic_mean(function_results);
+        let standard_deviation = standard_deviation(function_results, arithmetic_mean);
         write!(
             print_buffer,
             "[evaluation]\narithmetic_mean = {}\nstandard_deviation = {}",
@@ -185,18 +185,18 @@ fn write_output_file(print_buffer: &[u8], run_counter: usize) {
     file.flush().unwrap();
 }
 
-fn arithmetic_mean(fitness_results: &[f64]) -> f64 {
-    let mut total_fitness_results = 0.0;
-    for fitness_result in fitness_results {
-        total_fitness_results += fitness_result
+fn arithmetic_mean(function_results: &[f64]) -> f64 {
+    let mut total_function_results = 0.0;
+    for function_result in function_results {
+        total_function_results += function_result
     }
-    total_fitness_results / fitness_results.len() as f64
+    total_function_results / function_results.len() as f64
 }
 
-fn standard_deviation(fitness_results: &[f64], arithmetic_mean: f64) -> f64 {
+fn standard_deviation(function_results: &[f64], arithmetic_mean: f64) -> f64 {
     let mut total_difference_square = 0.0;
-    for fitness_result in fitness_results {
-        total_difference_square += (fitness_result - arithmetic_mean).powi(2)
+    for function_result in function_results {
+        total_difference_square += (function_result - arithmetic_mean).powi(2)
     }
-    total_difference_square / (fitness_results.len() - 1) as f64
+    f64::sqrt(total_difference_square / (function_results.len() - 1) as f64)
 }
