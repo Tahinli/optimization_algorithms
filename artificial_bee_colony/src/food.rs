@@ -4,8 +4,8 @@ use rand::Rng;
 
 #[derive(Debug, Clone)]
 pub struct FoodSource {
-    pub fitness: f64,
     pub function_calculation: f64,
+    pub fitness_calculation: f64,
     pub coordinates: Vec<f64>,
     pub try_counter: u128,
 }
@@ -13,7 +13,7 @@ pub struct FoodSource {
 impl FoodSource {
     pub fn new(coordinates: Vec<f64>) -> Self {
         let mut food_source = FoodSource {
-            fitness: 0.0,
+            fitness_calculation: 0.0,
             function_calculation: 0.0,
             coordinates,
             try_counter: 0,
@@ -27,9 +27,9 @@ impl FoodSource {
         let calculation = Self::calculate(self.coordinates.clone());
         self.function_calculation = calculation;
         if calculation >= 0.0 {
-            self.fitness = 1.0 / (1.0 + calculation);
+            self.fitness_calculation = 1.0 / (1.0 + calculation);
         } else {
-            self.fitness = 1.0 + calculation.abs();
+            self.fitness_calculation = 1.0 + calculation.abs();
         }
     }
 
@@ -65,8 +65,8 @@ impl fmt::Display for FoodSource {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "fitness = {}\nfunction_calculation = {}\ncoordinates = {:#?}\ntry_counter = {}\n",
-            self.fitness, self.function_calculation, self.coordinates, self.try_counter
+            "function_calculation = {}\nfitness_calculation = {}\ncoordinates = {:#?}\ntry_counter = {}\n",
+            self.function_calculation, self.fitness_calculation, self.coordinates, self.try_counter
         )
     }
 }
