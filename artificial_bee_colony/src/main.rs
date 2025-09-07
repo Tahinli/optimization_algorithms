@@ -1,4 +1,8 @@
-use artificial_bee_colony::{bee::Bee, food::FoodSource, give_output, Input};
+use artificial_bee_colony::{
+    bee::Bee,
+    food::FoodSource,
+    utils::{give_output, Input},
+};
 fn main() {
     println!("Hello, world!");
 
@@ -61,9 +65,9 @@ fn main() {
                             input.lower_bound,
                             input.upper_bound,
                             input.decision_variable_count,
-                        )
+                        );
+                        break;
                     }
-                    break;
                 }
             }
         }
