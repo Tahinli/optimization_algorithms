@@ -19,7 +19,13 @@ fn main() {
     }
     for _ in 0..input.iteration {
         for index in 0..input.food_source_number as usize {
-            Bee::worker_bee(&mut food_sources, index, input.decision_variable_count);
+            Bee::worker_bee(
+                &mut food_sources,
+                index,
+                input.decision_variable_count,
+                input.upper_bound,
+                input.lower_bound,
+            );
             let mut total_fitness = 0.0;
             for food_source in &food_sources {
                 total_fitness += food_source.fitness;
@@ -29,6 +35,8 @@ fn main() {
                 index,
                 total_fitness,
                 input.decision_variable_count,
+                input.upper_bound,
+                input.lower_bound,
             );
             let mut most_tried_index = 0;
             for i in 0..food_sources.len() {
